@@ -50,6 +50,7 @@
 #include <map>
 
 std::map<std::string, const char*> envMap;
+std::map<int, bool> tagState;
 
 char CHPL_HOME[FILENAME_MAX+1] = "";
 
@@ -178,6 +179,8 @@ char mainModuleName[256] = "";
 bool printSearchDirs = false;
 bool printModuleFiles = false;
 bool llvmCodegen = false;
+int enableWarningNum = 0;
+int disableWarningNum = 0;
 #ifdef HAVE_LLVM
 bool externC = true;
 #else
@@ -575,6 +578,14 @@ static void setWarnSpecial(const ArgumentDescription* desc, const char* unused) 
   setWarnTupleIteration(desc, unused);
 }
 
+static void setEnableWarning(const ArgumentDescription* desc, const char* unused) {
+	tagState[enableWarningNum] = true;
+}
+
+static void setDisableWarning(const ArgumentDescription* desc, const char* unused) {
+	tagState[enableWarningNum] = false;
+}
+
 static void setPrintPassesFile(const ArgumentDescription* desc, const char* fileName) {
   printPassesFile = fopen(fileName, "w");
 
@@ -710,6 +721,8 @@ static ArgumentDescription arg_desc[] = {
  {"warn-domain-literal", ' ', NULL, "Enable [disable] old domain literal syntax warnings", "n", &fNoWarnDomainLiteral, "CHPL_WARN_DOMAIN_LITERAL", setWarnDomainLiteral},
  {"warn-tuple-iteration", ' ', NULL, "Enable [disable] warnings for tuple iteration", "n", &fNoWarnTupleIteration, "CHPL_WARN_TUPLE_ITERATION", setWarnTupleIteration},
  {"warnings", ' ', NULL, "Enable [disable] output of warnings", "n", &ignore_warnings, "CHPL_DISABLE_WARNINGS", NULL},
+ {"enable-warning", ' ', "<number>", "Enable warning with the given number", "I", &enableWarningNum, NULL, setEnableWarning},
+ {"disable-warning", ' ', "<number>", "Disable warning with the given number", "I", &disableWarningNum, NULL, setDisableWarning},
 
  {"", ' ', NULL, "Compiler Configuration Options", NULL, NULL, NULL, NULL},
  {"home", ' ', "<path>", "Path to Chapel's home directory", "S", NULL, "_CHPL_HOME", setHome},
