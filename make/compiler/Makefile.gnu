@@ -34,7 +34,7 @@ RANLIB = ranlib
 
 DEBUG_CFLAGS = -g
 DEPEND_CFLAGS = -MMD -MP
-OPT_CFLAGS = -O3
+OPT_CFLAGS = -O0
 PROFILE_CFLAGS = -pg
 PROFILE_LFLAGS = -pg
 
@@ -46,7 +46,7 @@ endif
 #
 # Flags for compiler, runtime, and generated code
 #
-COMP_CFLAGS = $(CFLAGS)
+COMP_CFLAGS = $(CFLAGS) $(DEBUG_CFLAGS)
 COMP_CFLAGS_NONCHPL = -Wno-error
 RUNTIME_CFLAGS = -std=c99 $(CFLAGS)
 RUNTIME_GEN_CFLAGS = $(RUNTIME_CFLAGS)
