@@ -198,13 +198,13 @@ printErrorHeader(BaseAST* ast) {
             !err_fn->hasFlag(FLAG_INLINE) &&
             err_fn->linenum()) {
           fprintf(stderr, "%s:%d: In ",
-                  cleanFilename(err_fn), err_fn->linenum());
+              cleanFilename(err_fn), err_fn->linenum());
           if (!strncmp(err_fn->name, "_construct_", 11)) {
             fprintf(stderr, "constructor '%s':\n", err_fn->name+11);
           } else {
             fprintf(stderr, "%s '%s':\n",
-                    (err_fn->isIterator() ? "iterator" : "function"),
-                    err_fn->name);
+                (err_fn->isIterator() ? "iterator" : "function"),
+                err_fn->name);
           }
         }
       }
@@ -282,11 +282,11 @@ static void printErrorFooter(bool guess) {
   //
   if (!developer && !err_user) {
     fprintf(stderr, "\n\n"
-            "Internal errors indicate a bug in the Chapel compiler (\"It's us, not you\"),\n"
-            "and we're sorry for the hassle.  We would appreciate your reporting this bug -- \n"
-            "please see %s for instructions.  In the meantime,\n"
-            "the filename + line number above may be useful in working around the issue.\n\n", 
-            help_url);
+        "Internal errors indicate a bug in the Chapel compiler (\"It's us, not you\"),\n"
+        "and we're sorry for the hassle.  We would appreciate your reporting this bug -- \n"
+        "please see %s for instructions.  In the meantime,\n"
+        "the filename + line number above may be useful in working around the issue.\n\n",
+        help_url);
 
     //
     // and exit if it's fatal (isn't it always?)
@@ -315,10 +315,10 @@ void printCallStack(bool force, bool shortModule, FILE* out) {
     FnSymbol* fn = call->getFunction();
     ModuleSymbol* module = call->getModule();
     fprintf(out, "  %s:%d: %s%s%s\n",
-            (shortModule ? module->name : cleanFilename(fn->fname())),
-            call->linenum(), toString(fn),
-            (module->modTag == MOD_INTERNAL ? " [internal module]" : ""),
-            (fn->hasFlag(FLAG_COMPILER_GENERATED) ? " [compiler-generated]" : ""));
+        (shortModule ? module->name : cleanFilename(fn->fname())),
+        call->linenum(), toString(fn),
+        (module->modTag == MOD_INTERNAL ? " [internal module]" : ""),
+        (fn->hasFlag(FLAG_COMPILER_GENERATED) ? " [compiler-generated]" : ""));
   }
 }
 
@@ -342,18 +342,21 @@ void printCallStackCalls() {
     CallExpr* call = callStack.v[i];
     FnSymbol* cfn = call->isResolved();
     printf("%d  %d %s  <-  %d %s\n", i,
-           cfn ? cfn->id : 0, cfn ? cfn->name: "<no callee>",
-           call ? call->id : 0, call ? call->stringLoc() : "<no call>");
+        cfn ? cfn->id : 0, cfn ? cfn->name: "<no callee>",
+            call ? call->id : 0, call ? call->stringLoc() : "<no call>");
   }
   printf("\n");
 }
 
-
-void handleError(const char *fmt, ...) {
+void innerHandleError(WARN_TAGS wtag, const char *fmt, va_list args) {
   fflush(stdout);
   fflush(stderr);
   if (err_ignore)
     return;
+
+  if (tagState.find(wtag) != tagState.end() && !tagState[wtag])
+    return;
+
 
   bool guess = printErrorHeader(NULL);
 
@@ -362,11 +365,7 @@ void handleError(const char *fmt, ...) {
   // in developer mode.
   //
   if (err_user || developer) {
-    va_list args;
-
-    va_start(args, fmt);
     vfprintf(stderr, fmt, args);
-    va_end(args);
   }
 
   printErrorFooter(guess);
@@ -386,25 +385,55 @@ void handleError(const char *fmt, ...) {
   }
 }
 
+void handleError(const char *fmt, ...) {
+  va_list args;
+  va_start(args, fmt);
+  innerHandleError(PLACEHOLDER, fmt, args);
+  va_end(args);
+}
 
-static void vhandleError(FILE* file, BaseAST* ast, const char *fmt, va_list args);
+void handleError(WARN_TAGS wtag, const char *fmt, ...) {
+  va_list args;
+  va_start(args, fmt);
+  innerHandleError(wtag, fmt, args);
+  va_end(args);
+}
+
+static void vhandleError(WARN_TAGS wtag, FILE* file, BaseAST* ast, const char *fmt, va_list args);
 
 void handleError(BaseAST* ast, const char *fmt, ...) {
   va_list args;
   va_start(args, fmt);
-  vhandleError(stderr, ast, fmt, args);
+  vhandleError(PLACEHOLDER, stderr, ast, fmt, args);
   va_end(args);
 }
 
 void handleError(FILE* file, BaseAST* ast, const char *fmt, ...) {
   va_list args;
   va_start(args, fmt);
-  vhandleError(file, ast, fmt, args);
+  vhandleError(PLACEHOLDER, file, ast, fmt, args);
   va_end(args);
 }
 
-static void vhandleError(FILE* file, BaseAST* ast, const char *fmt, va_list args) {
+void handleError(WARN_TAGS wtag, BaseAST* ast, const char* fmt, ...) {
+  va_list args;
+  va_start(args, fmt);
+  vhandleError(wtag, stderr, ast, fmt, args);
+  va_end(args);
+
+}
+void handleError(WARN_TAGS wtag, FILE* file, BaseAST* ast, const char* fmt, ...) {
+  va_list args;
+  va_start(args, fmt);
+  vhandleError(wtag, stderr, ast, fmt, args);
+  va_end(args);
+}
+
+static void vhandleError(WARN_TAGS wtag, FILE* file, BaseAST* ast, const char *fmt, va_list args) {
   if (err_ignore)
+    return;
+
+  if (tagState.find(wtag) != tagState.end() && !tagState[wtag])
     return;
 
   bool guess = false;

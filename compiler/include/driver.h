@@ -194,4 +194,6 @@ extern bool fMinimalModules;
 // Interactive Programming Environmment (IPE) mode.
 extern bool fUseIPE;
 
+extern std::map<int, bool> tagState;
+
 #endif
