@@ -581,11 +581,27 @@ static void setWarnSpecial(const ArgumentDescription* desc, const char* unused) 
 }
 
 static void setEnableWarning(const ArgumentDescription* desc, const char* unused) {
-	tagState[warnStrToWarnEnum[disableWarningNum]] = true;
+  if (warnStrToWarnEnum[disableWarningNum] <  MISCONFIGURED_ENVIROUNMENT) {
+    tagState[warnStrToWarnEnum[disableWarningNum]] = true;
+  } else {
+    std::vector<int> warns = virtualMap[warnStrToWarnEnum[disableWarningNum]];
+
+    for (size_t i = 0; i < warns.size(); ++i) {
+      tagState[warns[i]] = true;
+    }
+  }
 }
 
 static void setDisableWarning(const ArgumentDescription* desc, const char* unused) {
-	tagState[warnStrToWarnEnum[enableWarningNum]] = false;
+  if (warnStrToWarnEnum[disableWarningNum] <  MISCONFIGURED_ENVIROUNMENT) {
+    tagState[warnStrToWarnEnum[disableWarningNum]] = false;
+  } else {
+    std::vector<int> warns = virtualMap[warnStrToWarnEnum[disableWarningNum]];
+
+    for (size_t i = 0; i < warns.size(); ++i) {
+      tagState[warns[i]] = false;
+    }
+ }
 }
 
 static void setPrintPassesFile(const ArgumentDescription* desc, const char* fileName) {
