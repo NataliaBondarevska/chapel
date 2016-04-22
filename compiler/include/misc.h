@@ -98,7 +98,14 @@ enum WARN_TAGS {
   //loop body - it will have the unit value after the loop
   PRAGMA_NONCLASS_FIELD_APPLIED,//\"local field\" pragma applied to non-class field %s (%s) in type %s\n
   PRAGMA_NONFIELD_APPLIED, //"\"local field\" pragma applied to non-field %s\n
-  AMBIGUOUS_SOURCE_FILE //Ambiguous module source file -- using %s over %s
+  AMBIGUOUS_SOURCE_FILE, //Ambiguous module source file -- using %s over %s
+
+  MISCONFIGURED_ENVIROUNMENT = 0x20000000,
+  VERIFICATION,
+  COMPILATION_PROBLEMS,
+  UNSUPPORTED,
+  LOGIC_ISSUES,
+  STYLE_ISSUES
 };
 
 class BaseAST;

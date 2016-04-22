@@ -52,6 +52,7 @@
 std::map<std::string, const char*> envMap;
 std::map<int, bool> tagState;
 std::map<std::string, int> warnStrToWarnEnum;
+std::map<int, std::vector<int> > virtualMap;
 
 char CHPL_HOME[FILENAME_MAX+1] = "";
 
@@ -893,50 +894,84 @@ bool useDefaultEnv(std::string key) {
   return false;
 }
 
-static void populateWarnStrToWarnEnumMap() {
+static void initializeWarningMaps() {
  warnStrToWarnEnum["PATH_MISMTH"]                       = PATH_MISMTH;
  warnStrToWarnEnum["NOT_CHPL_DISTRBTN"]                 = NOT_CHPL_DISTRBTN;
- warnStrToWarnEnum["ERR_OPNG_PRNT_PASS_FILE"]           = ERR_OPNG_PRNT_PASS_FILE;
- warnStrToWarnEnum["CANNT_DO_STACK_CHECK"]              = CANNT_DO_STACK_CHECK;
- warnStrToWarnEnum["CHPL_TASK_TRACK"]                   = CHPL_TASK_TRACK;
- warnStrToWarnEnum["STTC_COMPILATION_NO_SUPPORT"]       = STTC_COMPILATION_NO_SUPPORT;
- warnStrToWarnEnum["CHPL_TARGET_ARCH_UNKNOWN"]          = CHPL_TARGET_ARCH_UNKNOWN;
- warnStrToWarnEnum["INFNT_LOOP"]                        = INFNT_LOOP;
- warnStrToWarnEnum["WHILE_LOOP_CONST_CONDTN"]           = WHILE_LOOP_CONST_CONDTN;
- warnStrToWarnEnum["EXTERN_TYPE_DEF_MISSING"]           = EXTERN_TYPE_DEF_MISSING;
- warnStrToWarnEnum["EXTERN_DEF_MISSING"]                = EXTERN_DEF_MISSING;
- warnStrToWarnEnum["RETURN_TYPE_NOT_VALUE"]             = RETURN_TYPE_NOT_VALUE;
- warnStrToWarnEnum["COBEGIN_INSUFFCNT_STTNS"]           = COBEGIN_INSUFFCNT_STTNS;
- warnStrToWarnEnum["ATOM_WORD_IGNORED"]                 = ATOM_WORD_IGNORED;
- warnStrToWarnEnum["NOT_PREINCRMNT"]                    = NOT_PREINCRMNT;
- warnStrToWarnEnum["NOT_PREDECRMNT"]                    = NOT_PREDECRMNT;
- warnStrToWarnEnum["PROMOTION_WARN"]                    = PROMOTION_WARN;
- warnStrToWarnEnum["DEPTH_VALUE_EXCEED_STACK"]          = DEPTH_VALUE_EXCEED_STACK;
- warnStrToWarnEnum["NEGATIVE_DEPTH_VALUE"]              = NEGATIVE_DEPTH_VALUE;
- warnStrToWarnEnum["TYPE_NO_SUPPORT_NOINIT"]            = TYPE_NO_SUPPORT_NOINIT;
- warnStrToWarnEnum["LOCALE_ACCESSING"]                  = LOCALE_ACCESSING;
- warnStrToWarnEnum["REF_VAR_INTENT_PASS"]               = REF_VAR_INTENT_PASS;
- warnStrToWarnEnum["REF_CONST_MULTI_VAR_INTENT_PASS"]   = REF_CONST_MULTI_VAR_INTENT_PASS;
- warnStrToWarnEnum["WRONG_VAR_DECL"]                    = WRONG_VAR_DECL;
- warnStrToWarnEnum["FORALL_INTENT_COPY_IMPLEMENTATION"] = FORALL_INTENT_COPY_IMPLEMENTATION;
- warnStrToWarnEnum["USE_STMNT"]                         = USE_STMNT;
- warnStrToWarnEnum["PRIVATE_DECL_WITHIN_FUNCS"]         = PRIVATE_DECL_WITHIN_FUNCS;
- warnStrToWarnEnum["PRIVATE_DECL_WITHIN_NESTED_BLOCK"]  = PRIVATE_DECL_WITHIN_NESTED_BLOCK;
- warnStrToWarnEnum["PRIVATE_DECL_WITHIN_MODULE"]        = PRIVATE_DECL_WITHIN_MODULE;
- warnStrToWarnEnum["OPERAND_REF_INTENT"]                = OPERAND_REF_INTENT;
- warnStrToWarnEnum["THIS_PARENTHESES"]                  = THIS_PARENTHESES;
- warnStrToWarnEnum["THESE_PARENTHESES"]                 = THESE_PARENTHESES;
- warnStrToWarnEnum["THIS_APPLICATION_TO_METHODS"]       = THIS_APPLICATION_TO_METHODS;
- warnStrToWarnEnum["REDANDANT_DEFNTN"]                  = REDANDANT_DEFNTN;
- warnStrToWarnEnum["C_PACKED_POINTER_CODEGEN"]          = C_PACKED_POINTER_CODEGEN;
- warnStrToWarnEnum["REPEATED_IDENTIFIER"]               = REPEATED_IDENTIFIER;
- warnStrToWarnEnum["MODULE_SYMBOL_HIDES_FUNC_ARG"]      = MODULE_SYMBOL_HIDES_FUNC_ARG;
- warnStrToWarnEnum["REDUCE_INTENT_VALUE"]               = REDUCE_INTENT_VALUE;
- warnStrToWarnEnum["PRAGMA_NONCLASS_FIELD_APPLIED"]     = PRAGMA_NONCLASS_FIELD_APPLIED;
- warnStrToWarnEnum["PRAGMA_NONFIELD_APPLIED"]           = PRAGMA_NONFIELD_APPLIED;
- warnStrToWarnEnum["AMBIGUOUS_SOURCE_FILE"]             = AMBIGUOUS_SOURCE_FILE;
-}
+	warnStrToWarnEnum["ERR_OPNG_PRNT_PASS_FILE"]           = ERR_OPNG_PRNT_PASS_FILE;
+	warnStrToWarnEnum["CANNT_DO_STACK_CHECK"]              = CANNT_DO_STACK_CHECK;
+	warnStrToWarnEnum["CHPL_TASK_TRACK"]                   = CHPL_TASK_TRACK;
+	warnStrToWarnEnum["STTC_COMPILATION_NO_SUPPORT"]       = STTC_COMPILATION_NO_SUPPORT;
+	warnStrToWarnEnum["CHPL_TARGET_ARCH_UNKNOWN"]          = CHPL_TARGET_ARCH_UNKNOWN;
+	warnStrToWarnEnum["INFNT_LOOP"]                        = INFNT_LOOP;
+	warnStrToWarnEnum["WHILE_LOOP_CONST_CONDTN"]           = WHILE_LOOP_CONST_CONDTN;
+	warnStrToWarnEnum["EXTERN_TYPE_DEF_MISSING"]           = EXTERN_TYPE_DEF_MISSING;
+	warnStrToWarnEnum["EXTERN_DEF_MISSING"]                = EXTERN_DEF_MISSING;
+	warnStrToWarnEnum["RETURN_TYPE_NOT_VALUE"]             = RETURN_TYPE_NOT_VALUE;
+	warnStrToWarnEnum["COBEGIN_INSUFFCNT_STTNS"]           = COBEGIN_INSUFFCNT_STTNS;
+	warnStrToWarnEnum["ATOM_WORD_IGNORED"]                 = ATOM_WORD_IGNORED;
+	warnStrToWarnEnum["NOT_PREINCRMNT"]                    = NOT_PREINCRMNT;
+	warnStrToWarnEnum["NOT_PREDECRMNT"]                    = NOT_PREDECRMNT;
+	warnStrToWarnEnum["PROMOTION_WARN"]                    = PROMOTION_WARN;
+	warnStrToWarnEnum["DEPTH_VALUE_EXCEED_STACK"]          = DEPTH_VALUE_EXCEED_STACK;
+	warnStrToWarnEnum["NEGATIVE_DEPTH_VALUE"]              = NEGATIVE_DEPTH_VALUE;
+	warnStrToWarnEnum["TYPE_NO_SUPPORT_NOINIT"]            = TYPE_NO_SUPPORT_NOINIT;
+	warnStrToWarnEnum["LOCALE_ACCESSING"]                  = LOCALE_ACCESSING;
+	warnStrToWarnEnum["REF_VAR_INTENT_PASS"]               = REF_VAR_INTENT_PASS;
+	warnStrToWarnEnum["REF_CONST_MULTI_VAR_INTENT_PASS"]   = REF_CONST_MULTI_VAR_INTENT_PASS;
+	warnStrToWarnEnum["WRONG_VAR_DECL"]                    = WRONG_VAR_DECL;
+	warnStrToWarnEnum["FORALL_INTENT_COPY_IMPLEMENTATION"] = FORALL_INTENT_COPY_IMPLEMENTATION;
+	warnStrToWarnEnum["USE_STMNT"]                         = USE_STMNT;
+	warnStrToWarnEnum["PRIVATE_DECL_WITHIN_FUNCS"]         = PRIVATE_DECL_WITHIN_FUNCS;
+	warnStrToWarnEnum["PRIVATE_DECL_WITHIN_NESTED_BLOCK"]  = PRIVATE_DECL_WITHIN_NESTED_BLOCK;
+	warnStrToWarnEnum["PRIVATE_DECL_WITHIN_MODULE"]        = PRIVATE_DECL_WITHIN_MODULE;
+	warnStrToWarnEnum["OPERAND_REF_INTENT"]                = OPERAND_REF_INTENT;
+	warnStrToWarnEnum["THIS_PARENTHESES"]                  = THIS_PARENTHESES;
+	warnStrToWarnEnum["THESE_PARENTHESES"]                 = THESE_PARENTHESES;
+	warnStrToWarnEnum["THIS_APPLICATION_TO_METHODS"]       = THIS_APPLICATION_TO_METHODS;
+	warnStrToWarnEnum["REDANDANT_DEFNTN"]                  = REDANDANT_DEFNTN;
+	warnStrToWarnEnum["C_PACKED_POINTER_CODEGEN"]          = C_PACKED_POINTER_CODEGEN;
+	warnStrToWarnEnum["REPEATED_IDENTIFIER"]               = REPEATED_IDENTIFIER;
+	warnStrToWarnEnum["MODULE_SYMBOL_HIDES_FUNC_ARG"]      = MODULE_SYMBOL_HIDES_FUNC_ARG;
+	warnStrToWarnEnum["REDUCE_INTENT_VALUE"]               = REDUCE_INTENT_VALUE;
+	warnStrToWarnEnum["PRAGMA_NONCLASS_FIELD_APPLIED"]     = PRAGMA_NONCLASS_FIELD_APPLIED;
+	warnStrToWarnEnum["PRAGMA_NONFIELD_APPLIED"]           = PRAGMA_NONFIELD_APPLIED;
+	warnStrToWarnEnum["AMBIGUOUS_SOURCE_FILE"]             = AMBIGUOUS_SOURCE_FILE;
 
+	warnStrToWarnEnum["MISCONFIGURED_ENVIROUNMENT"] = MISCONFIGURED_ENVIROUNMENT;
+	warnStrToWarnEnum["VERIFICATION"] = VERIFICATION;
+	warnStrToWarnEnum["COMPILATION_PROBLEMS"] = COMPILATION_PROBLEMS;
+	warnStrToWarnEnum["UNSUPPORTED"] = UNSUPPORTED;
+	warnStrToWarnEnum["LOGIC_ISSUES"] = LOGIC_ISSUES;
+	warnStrToWarnEnum["STYLE_ISSUES"] = STYLE_ISSUES;
+
+	const int misconf_warnigns[] = {PATH_MISMTH, NOT_CHPL_DISTRBTN, ERR_OPNG_PRNT_PASS_FILE,	CHPL_TARGET_ARCH_UNKNOWN};
+	virtualMap[MISCONFIGURED_ENVIROUNMENT] = std::vector<int>(misconf_warnigns,
+			misconf_warnigns + sizeof(misconf_warnigns)/ sizeof(misconf_warnigns[0]));
+
+	const int verification_warnings[] = {CANNT_DO_STACK_CHECK, DEPTH_VALUE_EXCEED_STACK, NEGATIVE_DEPTH_VALUE,
+															PRIVATE_DECL_WITHIN_FUNCS, PRIVATE_DECL_WITHIN_NESTED_BLOCK, PRIVATE_DECL_WITHIN_MODULE,
+															THIS_PARENTHESES, THESE_PARENTHESES, THIS_APPLICATION_TO_METHODS, REDANDANT_DEFNTN};
+	virtualMap[VERIFICATION] = std::vector<int>(verification_warnings,
+			verification_warnings + sizeof(verification_warnings)/ sizeof(verification_warnings[0]));
+
+	const int compilation_warnings[] = {CHPL_TASK_TRACK, EXTERN_TYPE_DEF_MISSING, EXTERN_DEF_MISSING, AMBIGUOUS_SOURCE_FILE};
+	virtualMap[COMPILATION_PROBLEMS] = std::vector<int>(compilation_warnings,
+			compilation_warnings + sizeof(compilation_warnings)/ sizeof(compilation_warnings[0]));
+
+	const int unsupported_warnings[] = {STTC_COMPILATION_NO_SUPPORT, ATOM_WORD_IGNORED, FORALL_INTENT_COPY_IMPLEMENTATION,
+															C_PACKED_POINTER_CODEGEN };
+	virtualMap[UNSUPPORTED] = std::vector<int>(unsupported_warnings,
+			unsupported_warnings + sizeof(unsupported_warnings)/ sizeof(unsupported_warnings[0]));
+
+	const int logic_warnings[] = {INFNT_LOOP, WHILE_LOOP_CONST_CONDTN, RETURN_TYPE_NOT_VALUE, COBEGIN_INSUFFCNT_STTNS,
+														TYPE_NO_SUPPORT_NOINIT, REF_VAR_INTENT_PASS,REF_CONST_MULTI_VAR_INTENT_PASS};
+	virtualMap[LOGIC_ISSUES] = std::vector<int>(logic_warnings,
+			logic_warnings + sizeof(logic_warnings)/sizeof(logic_warnings[0]));
+
+	const int style_warnings[] = {OPERAND_REF_INTENT, NOT_PREINCRMNT, NOT_PREDECRMNT, REPEATED_IDENTIFIER, REDUCE_INTENT_VALUE};
+	virtualMap[STYLE_ISSUES] = std::vector<int>(style_warnings,
+			style_warnings + sizeof(style_warnings)/ sizeof(style_warnings[0]));
+}
 static void populateEnvMap() {
   // Destructively parses output of 'printchplenv --simple' for "key=value"
   // pairs and populates global envMap if the key has not been already set from
@@ -1117,7 +1152,7 @@ int main(int argc, char* argv[]) {
 
   startCatchingSignals();
 
-  populateWarnStrToWarnEnumMap();
+  initializeWarningMaps();
 
   {
     astlocMarker markAstLoc(0, "<internal>");
