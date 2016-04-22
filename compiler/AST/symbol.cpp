@@ -821,7 +821,7 @@ void VarSymbol::codegenGlobalDef() {
         llvm::Type* t = info->lvt->getType(cname);
         if( ! t ) {
           // TODO should be USR_FATAL
-          USR_WARN(this, "Could not find extern def of type %s", cname);
+          USR_WARN(EXTERN_TYPE_DEF_MISSING, this, "Could not find extern def of type %s", cname);
         }
       } else {
         GenRet v = info->lvt->getValue(cname);

@@ -105,7 +105,7 @@ containsOnlyModules(BlockStmt* block, const char* filename) {
   }
 
   if (hasUses && !hasOther && moduleDefs == 1) {
-    USR_WARN(lastmodsymstmt,
+    USR_WARN(USE_STMNT, lastmodsymstmt,
              "as written, '%s' is a sub-module of the module created for "
              "file '%s' due to the file-level 'use' statements.  If you "
              "meant for '%s' to be a top-level module, move the 'use' "

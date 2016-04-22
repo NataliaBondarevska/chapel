@@ -323,7 +323,7 @@ void markOuterVarsWithIntents(CallExpr* byrefVars, SymbolMap& uses) {
         if (isVarSymbol(marker)) {
           // this is a globalOp created in setupOneReduceIntent()
           INT_ASSERT(!strcmp(marker->name, "chpl__reduceGlob"));
-          USR_WARN(byrefVars, "the variable '%s' is given a reduce intent and not mentioned in the loop body - it will have the unit value after the loop", var->name);
+          USR_WARN(REDUCE_INTENT_VALUE, byrefVars, "the variable '%s' is given a reduce intent and not mentioned in the loop body - it will have the unit value after the loop", var->name);
         }
       }
       marker = NULL;

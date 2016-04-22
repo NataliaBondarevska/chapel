@@ -87,9 +87,6 @@ enum WARN_TAGS {
   PRIVATE_DECL_WITHIN_NESTED_BLOCK, //Private declarations within nested blocks are meaningless
   PRIVATE_DECL_WITHIN_MODULE, //Private declarations are meaningless outside of module level declarations
   OPERAND_REF_INTENT, //The left operand of '=' and '<op>=' should have 'ref' intent.
-  THIS_PARENTHESES, //method 'this' must have parentheses
-  THESE_PARENTHESES, //method 'these' must have parentheses
-  THIS_APPLICATION_TO_METHODS, //"'this' intents can only be applied to methods
   REDANDANT_DEFNTN, //"'%s' defined more than once in Chapel internal modules."
   C_PACKED_POINTER_CODEGEN, //C code generation for packed pointers not supported
   REPEATED_IDENTIFIER, //"identifier '%s' is repeated

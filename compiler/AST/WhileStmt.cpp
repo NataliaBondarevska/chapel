@@ -223,7 +223,7 @@ void WhileStmt::checkConstLoops()
     else
     {
       // There was no update of the loop condition variable in the body of the loop.
-      USR_WARN(condSym, "Infinite loop? The loop condition variable is never updated within the loop.");
+      USR_WARN(INFNT_LOOP, condSym, "Infinite loop? The loop condition variable is never updated within the loop.");
     }
   }
   else
@@ -298,7 +298,7 @@ bool WhileStmt::symDeclaredInBlock(Symbol* condSym)
 void WhileStmt::checkConstWhileLoop()
 {
   if (loopBodyHasExits() == false)
-    USR_WARN(this, "A while loop with a constant condition");
+    USR_WARN(WHILE_LOOP_CONST_CONDTN, this, "A while loop with a constant condition");
 }
 
 bool WhileStmt::loopBodyHasExits()

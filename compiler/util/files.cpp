@@ -662,7 +662,7 @@ static const char* searchPath(Vec<const char*> path, const char* filename,
       if (foundfile == NULL) {
         foundfile = fullfilename;
       } else if (!noWarn) {
-        USR_WARN("Ambiguous module source file -- using %s over %s",
+        USR_WARN(AMBIGUOUS_SOURCE_FILE, "Ambiguous module source file -- using %s over %s",
                  cleanFilename(foundfile),
                  cleanFilename(fullfilename));
       }

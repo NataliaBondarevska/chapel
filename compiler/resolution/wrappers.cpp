@@ -858,7 +858,7 @@ promotionWrap(FnSymbol* fn, CallInfo* info) {
   }
   if (promotion_wrapper_required) {
     if (fReportPromotion)
-      USR_WARN(info->call, "promotion on %s", toString(info));
+      USR_WARN(PROMOTION_WARN, info->call, "promotion on %s", toString(info));
 
     promoted_subs.put(fn, (Symbol*)info->call->square); // add value of square to cache
 

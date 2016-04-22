@@ -134,7 +134,7 @@ static void addPragmaFlags(Symbol* sym, Vec<const char*>* pragmas) {
         FnSymbol* fn = toFnSymbol(sym);
         INT_ASSERT(fn);
         if (fn->retTag != RET_VALUE) {
-          USR_WARN(fn, "function's return type is not a value type.  Ignoring.");
+          USR_WARN(RETURN_TYPE_NOT_VALUE, fn, "function's return type is not a value type.  Ignoring.");
         }
         fn->retTag = RET_TYPE;
       }
@@ -2452,7 +2452,7 @@ buildCobeginStmt(CallExpr* byref_vars, BlockStmt* block) {
   }
 
   if (block->length() < 2) {
-    USR_WARN(outer, "cobegin has no effect if it contains fewer than 2 statements");
+    USR_WARN(COBEGIN_INSUFFCNT_STTNS, outer, "cobegin has no effect if it contains fewer than 2 statements");
     // dropping byref_vars, if any
     return buildChapelStmt(block);
   }
@@ -2496,7 +2496,7 @@ buildAtomicStmt(Expr* stmt) {
 
   if (!atomic_warning) {
     atomic_warning = true;
-    USR_WARN(stmt, "atomic keyword is ignored (not implemented)");
+    USR_WARN(ATOM_WORD_IGNORED, stmt, "atomic keyword is ignored (not implemented)");
   }
   return buildChapelStmt(new BlockStmt(stmt));
 }
@@ -2504,10 +2504,10 @@ buildAtomicStmt(Expr* stmt) {
 
 CallExpr* buildPreDecIncWarning(Expr* expr, char sign) {
   if (sign == '+') {
-    USR_WARN(expr, "++ is not a pre-increment");
+    USR_WARN(NOT_PREINCRMNT, expr, "++ is not a pre-increment");
     return new CallExpr("+", new CallExpr("+", expr));
   } else if (sign == '-') {
-    USR_WARN(expr, "-- is not a pre-decrement");
+    USR_WARN(NOT_PREDECRMNT, expr, "-- is not a pre-decrement");
     return new CallExpr("-", new CallExpr("-", expr));
   } else {
     INT_FATAL(expr, "Error in parser");

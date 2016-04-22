@@ -115,7 +115,7 @@ static void checkPrivateDecls(DefExpr* def) {
         // symbols at the function scope are meaningless because there is no
         // way for anything outside the function to access its locals, so warn
         // the user.
-        USR_WARN(def,
+        USR_WARN(PRIVATE_DECL_WITHIN_FUNCS, def,
                  "Private declarations within function bodies are meaningless");
         // Don't want to waste time treating this symbol as if it could be
         // accessed from an outer scope, so remove the flag.
@@ -134,7 +134,7 @@ static void checkPrivateDecls(DefExpr* def) {
               // The block in which we are defined is not the top level module
               // block.  Private symbols at this scope are meaningless, so warn
               // the user.
-              USR_WARN(def,
+              USR_WARN(PRIVATE_DECL_WITHIN_NESTED_BLOCK, def,
                        "Private declarations within nested blocks are meaningless");
               def->sym->removeFlag(FLAG_PRIVATE);
             }
@@ -143,7 +143,7 @@ static void checkPrivateDecls(DefExpr* def) {
             // Most of them will not reach here due to being banned at parse
             // time.  However, those that aren't excluded by syntax errors will
             // be caught here.
-            USR_WARN(def, "Private declarations are meaningless outside of module level declarations");
+            USR_WARN(PRIVATE_DECL_WITHIN_MODULE, def, "Private declarations are meaningless outside of module level declarations");
             def->sym->removeFlag(FLAG_PRIVATE);
           }
         }
@@ -199,7 +199,7 @@ checkFunction(FnSymbol* fn) {
   // Ensure that the lhs of "=" and "<op>=" is passed by ref.
   if (fn->hasFlag(FLAG_ASSIGNOP))
     if (fn->getFormal(1)->intent != INTENT_REF)
-      USR_WARN(fn, "The left operand of '=' and '<op>=' should have 'ref' intent.");
+      USR_WARN(OPERAND_REF_INTENT, fn, "The left operand of '=' and '<op>=' should have 'ref' intent.");
 
   if (!strcmp(fn->name, "this") && fn->hasFlag(FLAG_NO_PARENS))
     USR_FATAL_CONT(fn, "method 'this' must have parentheses");

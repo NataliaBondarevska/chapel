@@ -48,6 +48,7 @@
 #include <string>
 #include <sstream>
 #include <map>
+#include <iostream>
 
 std::map<std::string, const char*> envMap;
 std::map<int, bool> tagState;
@@ -278,7 +279,7 @@ static void setupChplHome(const char* argv0) {
 
       if( ! isSameFile(chpl_home, guess) ) {
         // Not the same. Emit warning.
-        USR_WARN("$CHPL_HOME=%s mismatched with executable home=%s",
+        USR_WARN(PATH_MISMTH, "$CHPL_HOME=%s mismatched with executable home=%s",
                  chpl_home, guess);
       }
       // Since we have an enviro var, always use that.
@@ -306,7 +307,7 @@ static void setupChplHome(const char* argv0) {
   // Check that the resulting path is a Chapel distribution.
   if( ! isMaybeChplHome(CHPL_HOME) ) {
     // Bad enviro var.
-    USR_WARN("CHPL_HOME=%s is not a Chapel distribution", CHPL_HOME);
+    USR_WARN(NOT_CHPL_DISTRBTN, "CHPL_HOME=%s is not a Chapel distribution", CHPL_HOME);
   }
 
   if( guess )
@@ -581,10 +582,10 @@ static void setWarnSpecial(const ArgumentDescription* desc, const char* unused) 
 }
 
 static void setEnableWarning(const ArgumentDescription* desc, const char* unused) {
-  if (warnStrToWarnEnum[disableWarningNum] <  MISCONFIGURED_ENVIROUNMENT) {
-    tagState[warnStrToWarnEnum[disableWarningNum]] = true;
+  if (warnStrToWarnEnum[enableWarningNum] <  MISCONFIGURED_ENVIROUNMENT) {
+    tagState[warnStrToWarnEnum[enableWarningNum]] = true;
   } else {
-    std::vector<int> warns = virtualMap[warnStrToWarnEnum[disableWarningNum]];
+    std::vector<int> warns = virtualMap[warnStrToWarnEnum[enableWarningNum]];
 
     for (size_t i = 0; i < warns.size(); ++i) {
       tagState[warns[i]] = true;
@@ -608,7 +609,7 @@ static void setPrintPassesFile(const ArgumentDescription* desc, const char* file
   printPassesFile = fopen(fileName, "w");
 
   if (printPassesFile == NULL) {
-    USR_WARN("Error opening printPassesFile: %s.", fileName);
+    USR_WARN(ERR_OPNG_PRNT_PASS_FILE, "Error opening printPassesFile: %s.", fileName);
   }
 }
 
@@ -941,9 +942,6 @@ static void initializeWarningMaps() {
 	warnStrToWarnEnum["PRIVATE_DECL_WITHIN_NESTED_BLOCK"]  = PRIVATE_DECL_WITHIN_NESTED_BLOCK;
 	warnStrToWarnEnum["PRIVATE_DECL_WITHIN_MODULE"]        = PRIVATE_DECL_WITHIN_MODULE;
 	warnStrToWarnEnum["OPERAND_REF_INTENT"]                = OPERAND_REF_INTENT;
-	warnStrToWarnEnum["THIS_PARENTHESES"]                  = THIS_PARENTHESES;
-	warnStrToWarnEnum["THESE_PARENTHESES"]                 = THESE_PARENTHESES;
-	warnStrToWarnEnum["THIS_APPLICATION_TO_METHODS"]       = THIS_APPLICATION_TO_METHODS;
 	warnStrToWarnEnum["REDANDANT_DEFNTN"]                  = REDANDANT_DEFNTN;
 	warnStrToWarnEnum["C_PACKED_POINTER_CODEGEN"]          = C_PACKED_POINTER_CODEGEN;
 	warnStrToWarnEnum["REPEATED_IDENTIFIER"]               = REPEATED_IDENTIFIER;
@@ -965,8 +963,7 @@ static void initializeWarningMaps() {
 			misconf_warnigns + sizeof(misconf_warnigns)/ sizeof(misconf_warnigns[0]));
 
 	const int verification_warnings[] = {CANNT_DO_STACK_CHECK, DEPTH_VALUE_EXCEED_STACK, NEGATIVE_DEPTH_VALUE,
-															PRIVATE_DECL_WITHIN_FUNCS, PRIVATE_DECL_WITHIN_NESTED_BLOCK, PRIVATE_DECL_WITHIN_MODULE,
-															THIS_PARENTHESES, THESE_PARENTHESES, THIS_APPLICATION_TO_METHODS, REDANDANT_DEFNTN};
+															PRIVATE_DECL_WITHIN_FUNCS, PRIVATE_DECL_WITHIN_NESTED_BLOCK, PRIVATE_DECL_WITHIN_MODULE, REDANDANT_DEFNTN};
 	virtualMap[VERIFICATION] = std::vector<int>(verification_warnings,
 			verification_warnings + sizeof(verification_warnings)/ sizeof(verification_warnings[0]));
 
@@ -1082,7 +1079,7 @@ static void setupChplGlobals(const char* argv0) {
 static void postStackCheck() {
   if (!fNoStackChecks && fUserSetStackChecks) {
     if (strcmp(CHPL_TASKS, "massivethreads") == 0) {
-      USR_WARN("CHPL_TASKS=%s cannot do stack checks.", CHPL_TASKS);
+      USR_WARN(CANNT_DO_STACK_CHECK, "CHPL_TASKS=%s cannot do stack checks.", CHPL_TASKS);
     }
   }
 }
@@ -1090,7 +1087,7 @@ static void postStackCheck() {
 static void postTaskTracking() {
   if (fEnableTaskTracking) {
     if (strcmp(CHPL_TASKS, "fifo") != 0) {
-      USR_WARN("Enabling task tracking with CHPL_TASKS=%s has no effect other than to slow down compilation", CHPL_TASKS);
+      USR_WARN(CHPL_TASK_TRACK, "Enabling task tracking with CHPL_TASKS=%s has no effect other than to slow down compilation", CHPL_TASKS);
     }
   }
 }
@@ -1098,7 +1095,7 @@ static void postTaskTracking() {
 static void postStaticLink() {
   if (fLinkStyle == LS_STATIC) {
     if (strcmp(CHPL_TARGET_PLATFORM, "darwin") == 0) {
-      USR_WARN("Static compilation is not supported on OS X, ignoring flag.");
+      USR_WARN(STTC_COMPILATION_NO_SUPPORT, "Static compilation is not supported on OS X, ignoring flag.");
       fLinkStyle = LS_DEFAULT;
     }
   }
@@ -1135,7 +1132,7 @@ static void checkLLVMCodeGen() {
 
 static void checkTargetArch() {
   if (specializeCCode && (strcmp(CHPL_TARGET_ARCH, "unknown") == 0)) {
-    USR_WARN("--specialize was set, but CHPL_TARGET_ARCH is 'unknown'. If "
+    USR_WARN(CHPL_TARGET_ARCH_UNKNOWN, "--specialize was set, but CHPL_TARGET_ARCH is 'unknown'. If "
               "you want any specialization to occur please set CHPL_TARGET_ARCH "
               "to a proper value.");
   }

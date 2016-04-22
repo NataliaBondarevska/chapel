@@ -1324,7 +1324,7 @@ void codegen(void) {
     // it does so only to help make sure that packed pointer code
     // generation is correct. It is not a "supported configuration".
     if( ! llvmCodegen )
-      USR_WARN("C code generation for packed pointers not supported");
+      USR_WARN(C_PACKED_POINTER_CODEGEN, "C code generation for packed pointers not supported");
   }
 
   if( llvmCodegen ) {

@@ -2802,11 +2802,11 @@ static void issueCompilerError(CallExpr* call) {
   }
   if (depth > callStack.n - 1) {
     if (foundDepthVal)
-      USR_WARN(call, "compiler diagnostic depth value exceeds call stack depth");
+      USR_WARN(DEPTH_VALUE_EXCEED_STACK, call, "compiler diagnostic depth value exceeds call stack depth");
     depth = callStack.n - 1;
   }
   if (depth < 0) {
-    USR_WARN(call, "compiler diagnostic depth value can not be negative");
+    USR_WARN(NEGATIVE_DEPTH_VALUE, call, "compiler diagnostic depth value can not be negative");
     depth = 0;
   }
   CallExpr* from = NULL;
@@ -5496,7 +5496,7 @@ preFold(Expr* expr) {
             }
           }
           if (!nowarn)
-            USR_WARN(call, "type %s does not currently support noinit, using default initialization", type->symbol->name);
+            USR_WARN(TYPE_NO_SUPPORT_NOINIT, call, "type %s does not currently support noinit, using default initialization", type->symbol->name);
           result = new CallExpr(PRIM_INIT, call->get(1)->remove());
           call->replace(result);
           inits.add(toCallExpr(result));
@@ -5812,7 +5812,7 @@ preFold(Expr* expr) {
       //
       SymExpr* se = toSymExpr(call->get(1));
       if (se->var->hasFlag(FLAG_EXPR_TEMP) && !isClass(type))
-        USR_WARN(se, "accessing the locale of a local expression");
+        USR_WARN(LOCALE_ACCESSING, se, "accessing the locale of a local expression");
 
       //
       // if .locale is applied to an expression of array, domain, or distribution

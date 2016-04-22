@@ -237,14 +237,14 @@ static void createShadowVars(DefExpr* defChplIter, SymbolMap& uses,
         // Atomic vars might not work either.
         // And anyway, only 'ref' intent makes sense here.
         pruneit = true;
-        USR_WARN(defChplIter, "sync, single, or atomic var '%s' currently can be passed into the forall loop by 'ref' intent only - %s is ignored", ovar->name, tiMarker ? intentDescrString(tiMarker->intent) : "default intent");
+        USR_WARN(REF_VAR_INTENT_PASS, defChplIter, "sync, single, or atomic var '%s' currently can be passed into the forall loop by 'ref' intent only - %s is ignored", ovar->name, tiMarker ? intentDescrString(tiMarker->intent) : "default intent");
       } else if (isRecordWrappedType(ovar->type) &&
                  !(tiIntent & INTENT_FLAG_REF)) {
         // Threading through the leader for non-ref intents
         // may not work correctly for arrays/domains, so we avoid it.
         tiIntent = (tiIntent & INTENT_FLAG_CONST) ?
           INTENT_CONST_REF : INTENT_REF;
-        USR_WARN(defChplIter, "Arrays, domains, and distributions currently can be passed into the forall loop by 'const', 'ref' or 'const ref' intent only. '%s' will be passed by %s.", ovar->name, intentDescrString(tiIntent));
+        USR_WARN(REF_CONST_MULTI_VAR_INTENT_PASS, defChplIter, "Arrays, domains, and distributions currently can be passed into the forall loop by 'const', 'ref' or 'const ref' intent only. '%s' will be passed by %s.", ovar->name, intentDescrString(tiIntent));
       }
 
       if (pruneit) {
@@ -303,7 +303,7 @@ checkForRecordsWithArrayFields(Expr* ref, std::vector<Symbol*>& outerVars) {
               // be subject to forall intents? If so, (b) need to modify
               // USR_WARN below not to print its name.
               INT_ASSERT(!sym->hasFlag(FLAG_TEMP));
-              USR_WARN(ref, "The blank forall intent for record and union variables is temporarily implemented as a copy, not 'const ref'. As a result, the %s variable '%s' is affected. Its field %s: %s inside the loop will be a copy, not alias, of its field outside the loop. Use a task-intent-clause to pass it by reference, e.g. 'with (ref %s)'.",
+              USR_WARN(FORALL_INTENT_COPY_IMPLEMENTATION, ref, "The blank forall intent for record and union variables is temporarily implemented as a copy, not 'const ref'. As a result, the %s variable '%s' is affected. Its field %s: %s inside the loop will be a copy, not alias, of its field outside the loop. Use a task-intent-clause to pass it by reference, e.g. 'with (ref %s)'.",
                        varKind, sym->name,
                        fieldDef->sym->name, fieldDef->sym->type->symbol->name,
                        sym->name);

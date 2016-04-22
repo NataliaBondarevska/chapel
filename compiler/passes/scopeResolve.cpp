@@ -514,7 +514,7 @@ void UseStmt::noRepeats() {
     for (++next; next != named.end(); ++next) {
       // Check rest of named for the same name
       if (!strcmp(*it, *next)) {
-        USR_WARN(this, "identifier '%s' is repeated", *it);
+        USR_WARN(REPEATED_IDENTIFIER, this, "identifier '%s' is repeated", *it);
       }
     }
     for (std::map<const char*, const char*>::iterator renamedIt = renamed.begin();
@@ -522,7 +522,7 @@ void UseStmt::noRepeats() {
       if (!strcmp(*it, renamedIt->second)) {
         // This identifier is also used as the old name for a renaming.
         // Probably a mistake on the user's part, but not a catastrophic one
-        USR_WARN(this, "identifier '%s' is repeated", *it);
+        USR_WARN(REPEATED_IDENTIFIER, this, "identifier '%s' is repeated", *it);
       }
       if (!strcmp(*it, renamedIt->first)) {
         // The user attempted to rename a symbol to a name that was already
@@ -538,18 +538,18 @@ void UseStmt::noRepeats() {
       if (!strcmp(it->second, next->second)) {
         // Renamed this variable twice.  Probably a mistake on the user's part,
         // but not a catastrophic one
-        USR_WARN(this, "identifier '%s' is repeated", it->second);
+        USR_WARN(REPEATED_IDENTIFIER, this, "identifier '%s' is repeated", it->second);
       }
       if (!strcmp(it->second, next->first)) {
         // This name is the old_name in one rename and the new_name in another
         // Did the user actually want to cut out the middle man?
-        USR_WARN(this, "identifier '%s' is repeated", it->second);
+        USR_WARN(REPEATED_IDENTIFIER, this, "identifier '%s' is repeated", it->second);
         USR_PRINT("Did you mean to rename '%s' to '%s'?", next->second, it->first);
       }
       if (!strcmp(it->first, next->second)) {
         // This name is the old_name in one rename and the new_name in another
         // Did the user actually want to cut out the middle man?
-        USR_WARN(this, "identifier '%s' is repeated", it->first);
+        USR_WARN(REPEATED_IDENTIFIER, this, "identifier '%s' is repeated", it->first);
         USR_PRINT("Did you mean to rename '%s' to '%s'?", it->second, next->first);
       }
       // Two symbols can't be renamed to the same name because the map can only
@@ -2289,7 +2289,7 @@ static bool lookupThisScopeAndUses(BaseAST* scope, const char * name,
               // We found it in the arguments.  This should cause a conflict,
               // because it is probably an error that the user had the same
               // name as a module level variable.
-              USR_WARN(sym, "Module level symbol is hiding function argument '%s'", name);
+              USR_WARN(MODULE_SYMBOL_HIDES_FUNC_ARG, sym, "Module level symbol is hiding function argument '%s'", name);
               //symbols.push_back(sym);
               // If we wanted this to be an error case, uncomment the above line
             }

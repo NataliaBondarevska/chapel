@@ -371,11 +371,11 @@ static void fixType(Symbol* sym, bool mustBeWide, bool wideVal) {
       if (isFullyWide(ts)) return; // Don't widen a field in a wide type.
 
       if (sym->hasFlag(FLAG_LOCAL_FIELD) && !isClass(sym->type)) {
-        USR_WARN("\"local field\" pragma applied to non-class field %s (%s) in type %s\n",
+        USR_WARN(PRAGMA_NONCLASS_FIELD_APPLIED, "\"local field\" pragma applied to non-class field %s (%s) in type %s\n",
             sym->cname, sym->type->symbol->cname, ts->cname);
       }
     } else if (sym->hasFlag(FLAG_LOCAL_FIELD)) {
-      USR_WARN("\"local field\" pragma applied to non-field %s\n", sym->cname);
+      USR_WARN(PRAGMA_NONFIELD_APPLIED, "\"local field\" pragma applied to non-field %s\n", sym->cname);
     }
 
     if (Type* wide = wideClassMap.get(sym->type)) {
